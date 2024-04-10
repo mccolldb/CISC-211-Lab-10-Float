@@ -64,7 +64,9 @@
 #include <float.h>
 #include "definitions.h"                // SYS function prototypes
 #include "printFuncs.h"  // lab print funcs
-#include "testFuncs.h"  // lab print funcs
+#include "testFuncs.h"  // lab test funcs
+
+#include "asmExterns.h"  // references to data defined in asmFloat.s
 
 /* RTC Time period match values for input clock of 1 KHz */
 #define PERIOD_50MS                             51
@@ -107,16 +109,6 @@ static uint8_t uartTxBuffer[MAX_PRINT_LEN] = {0};
 // Function signature
 // For this lab, return the larger of the two floating point values passed in.
 extern float * asmFmax(uint32_t, uint32_t);
-
-// externs defined in the assembly file:
-extern float f1,f2,fMax;
-extern uint32_t sb1,sb2,signBitMax;
-// ERROR: exp2 is the name of a built-in C function!
-// extern int32_t exp1,exp2,expMax; // adjusted UNBIASED exponent
-extern int32_t expMax; // adjusted UNBIASED exponent
-extern uint32_t mant1,mant2,mantMax; // adjusted mantissa (hidden bit added when appropriate))
-extern int32_t biasedExp1,biasedExp2,biasedExpMax;
-extern uint32_t nanValue;
 
 
 // Change the value below to 1 if you want to use the debug array

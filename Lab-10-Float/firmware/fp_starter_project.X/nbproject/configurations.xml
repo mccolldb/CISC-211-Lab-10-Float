@@ -248,6 +248,7 @@
       <itemPath>../src/printFuncs.h</itemPath>
       <itemPath>../src/testFuncs.c</itemPath>
       <itemPath>../src/testFuncs.h</itemPath>
+      <itemPath>../src/asmExterns.h</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

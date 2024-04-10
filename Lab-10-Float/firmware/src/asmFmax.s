@@ -7,22 +7,22 @@
 
 @ Define the globals so that the C code can access them
 
-.global f1,f2,fMax,signBitMax,biasedExpMax,expMax,mantMax
+.global f1,f2,fMax,signBitMax,storedExpMax,realExpMax,mantMax
 .type f1,%gnu_unique_object
 .type f2,%gnu_unique_object
 .type fMax,%gnu_unique_object
 .type signBitMax,%gnu_unique_object
-.type biasedExpMax,%gnu_unique_object
-.type expMax,%gnu_unique_object
+.type storedExpMax,%gnu_unique_object
+.type realExpMax,%gnu_unique_object
 .type mantMax,%gnu_unique_object
 
-.global sb1,sb2,biasedExp1,biasedExp2,exp1,exp2,mant1,mant2
+.global sb1,sb2,storedExp1,storedExp2,realExp1,realExp2,mant1,mant2
 .type sb1,%gnu_unique_object
 .type sb2,%gnu_unique_object
-.type biasedExp1,%gnu_unique_object
-.type biasedExp2,%gnu_unique_object
-.type exp1,%gnu_unique_object
-.type exp2,%gnu_unique_object
+.type storedExp1,%gnu_unique_object
+.type storedExp2,%gnu_unique_object
+.type realExp1,%gnu_unique_object
+.type realExp2,%gnu_unique_object
 .type mant1,%gnu_unique_object
 .type mant2,%gnu_unique_object
  
@@ -30,22 +30,22 @@
 @ use these locations to store f1 values
 f1: .word 0
 sb1: .word 0
-biasedExp1: .word 0  /* the unmodified 8b exp value extracted from the float */
-exp1: .word 0
+storedExp1: .word 0  /* the unmodified 8b exp value extracted from the float */
+realExp1: .word 0
 mant1: .word 0
  
 @ use these locations to store f2 values
 f2: .word 0
 sb2: .word 0
-exp2: .word 0
-biasedExp2: .word 0  /* the unmodified 8b exp value extracted from the float */
+realExp2: .word 0
+storedExp2: .word 0  /* the unmodified 8b exp value extracted from the float */
 mant2: .word 0
  
 @ use these locations to store fMax values
 fMax: .word 0
 signBitMax: .word 0
-biasedExpMax: .word 0
-expMax: .word 0
+storedExpMax: .word 0
+realExpMax: .word 0
 mantMax: .word 0
 
 .global nanValue 
@@ -92,14 +92,16 @@ getSignBit:
     input:  r0: address of mem containing 32b float to be unpacked
             r1: address of mem to store BIASED
                 bits 23-30 (exponent) 
-                BIASED means the unpacked value (range 0-255)
-                use exp1, exp2, or expMax for storage, as needed
-            r2: address of mem to store unpacked and UNBIASED 
+                BIASED means the unpacked value (range 0-255) copied
+                out of the original float.
+                use storedExp1, storedExp2, or storedExpMax for storage, as needed
+            r2: address of mem to store unpacked REAL exponent
                 bits 23-30 (exponent) 
-                UNBIASED means the unpacked value - 127
-                use exp1, exp2, or expMax for storage, as needed
+                REAL means the unpacked value - 127 (or -126, see presentation
+                for details)
+                use realExp1, realExp2, or realExpMax for storage, as needed
     output: [r1]: mem location given by r1 contains the unpacked
-                  original (biased) exponent bits, in the lower 8b of the mem 
+                  original (stored) exponent bits, in the lower 8b of the mem 
                   location
             [r2]: mem location given by r2 contains the unpacked
                   and UNBIASED exponent bits, in the lower 8b of the mem 
@@ -151,21 +153,19 @@ where:
      following global variables prior to returning to the caller:
      
      signBitMax: 0 if the larger number is positive, otherwise 1
-     expMax:     The UNBIASED exponent of the larger number
-                 i.e. the BIASED exponent - 127
+     realExpMax: The REAL exponent of the max value
+                 i.e. the STORED exponent - 127 (or -126, see lecture
+                 notes for details)
      mantMax:    the lower 23b unpacked from the larger number
      
-     SEE LECTURE SLIDES FOR EXACT REQUIREMENTS on when and how to adjust values!
+     SEE LECTURE SLIDES FOR EXACT REQUIREMENTS on when and how to 
+     adjust exponent and max values!
 
 
 ********************************************************************/    
 .global asmFmax
 .type asmFmax,%function
 asmFmax:   
-
-    /* Note to Profs: Solution used to test c code is located in Canvas:
-     *    Files -> Lab Files and Coding Examples -> Lab 11 Float Solution
-     */
 
     /* YOUR asmFmax CODE BELOW THIS LINE! VVVVVVVVVVVVVVVVVVVVV  */
     

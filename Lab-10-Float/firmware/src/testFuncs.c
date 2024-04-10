@@ -32,27 +32,15 @@
 #include "testFuncs.h" // lab test structs
 #include "printFuncs.h"  // lab print funcs
 
+#include "asmExterns.h"  // references to data defined in asmFloat.s
 
 #define MAX_PRINT_LEN 1000
 
 static uint8_t txBuffer[MAX_PRINT_LEN] = {0};
 
-
 static char * pass = "PASS";
 static char * fail = "FAIL";
 static char * oops = "OOPS";
-
-// externs defined in the assembly file:
-extern float f1,f2,fMax;
-extern uint32_t sb1,sb2,signBitMax;
-// ERROR: exp2 is the name of a built-in C function!
-// extern int32_t exp1,exp2,expMax; // adjusted UNBIASED exponent
-extern int32_t expMax; // adjusted UNBIASED exponent
-extern uint32_t mant1,mant2,mantMax; // adjusted mantissa (hidden bit added when appropriate))
-extern int32_t biasedExp1,biasedExp2,biasedExpMax;
-extern uint32_t nanValue;
-
-
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -423,8 +411,8 @@ void testResult(int testNum,
     
     // check the unpacked values
     check(e.signBit,signBitMax,passCnt,failCnt,&sbCheck);
-    check(e.biasedExp,biasedExpMax,passCnt,failCnt,&biasedExpCheck);
-    check(e.unbiasedExp,expMax,passCnt,failCnt,&unbiasedExpCheck);
+    check(e.biasedExp,storedExpMax,passCnt,failCnt,&biasedExpCheck);
+    check(e.unbiasedExp,realExpMax,passCnt,failCnt,&unbiasedExpCheck);
     
     // if expMax is 255, needs special handling.
     // In that case, allow mantissa with or without hidden bit set.
@@ -449,8 +437,8 @@ void testResult(int testNum,
             maxCheck,e.floatVal,asmResult,
             ptrCheck,(uintptr_t)(&fMax), (uintptr_t)pResult,
             sbCheck,e.signBit,signBitMax,
-            biasedExpCheck,e.biasedExp,biasedExpMax,
-            unbiasedExpCheck,e.unbiasedExp,expMax,
+            biasedExpCheck,e.biasedExp,storedExpMax,
+            unbiasedExpCheck,e.unbiasedExp,realExpMax,
             mantCheck,e.mantissa,mantMax,
             *passCnt,*failCnt); 
     

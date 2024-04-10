@@ -34,6 +34,8 @@
 #include "testFuncs.h" // lab test structs
 #include "printFuncs.h"  // lab print funcs
 
+#include "asmExterns.h"  // references to data defined in asmFloat.s
+
 
 
 /* ************************************************************************** */
