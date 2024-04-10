@@ -37,6 +37,8 @@ extern "C" {
 #endif
 
     // externs defined in the assembly file:
+    extern uint32_t nameStrPtr;
+
     extern float f1,f2,fMax;
     extern uint32_t sb1,sb2,signBitMax;
     // adjusted UNBIASED (real) exponent

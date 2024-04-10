@@ -7,6 +7,18 @@
 
 @ Define the globals so that the C code can access them
 
+/* create a string */
+.global nameStr
+.type nameStr,%gnu_unique_object
+    
+/*** STUDENTS: Change the next line to your name!  **/
+nameStr: .asciz "Inigo Montoya"  
+ 
+/* initialize a global variable that C can access to print the nameStr */
+.global nameStrPtr
+.type nameStrPtr,%gnu_unique_object
+nameStrPtr: .word nameStr   /* Assign the mem loc of nameStr to nameStrPtr */
+
 .global f1,f2,fMax,signBitMax,storedExpMax,realExpMax,mantMax
 .type f1,%gnu_unique_object
 .type f2,%gnu_unique_object

@@ -111,8 +111,11 @@ static uint8_t uartTxBuffer[MAX_PRINT_LEN] = {0};
 extern float * asmFmax(uint32_t, uint32_t);
 
 
-// Change the value below to 1 if you want to use the debug array
-// Leave it set to 0 if you want to use the array the students were given
+// Change the value below to 1 if you want to use the debug array.
+// You can change the debug array without fear of losing the original
+// test cases.
+// Leave it set to 0 if you want to use the exact array that will be used
+// for grading
 #define USE_DEBUG_TESTCASES 0
 
 #if USE_DEBUG_TESTCASES
@@ -136,6 +139,8 @@ static float tc[][2] = { // Modify these if you want to debug
 };
 #else
 static float tc[][2] = { // DO NOT MODIFY THESE!!!!!
+    {   1.175503179e-38, 1.10203478208e-38 },
+    {    -0.2,                 -0.1}, 
     {     1.0,                  2.0}, 
     {    -3.1,                  -1.2}, 
     {     NAN,                  1.0}, 
@@ -255,16 +260,16 @@ int main ( void )
             }
             
         }
-        /* Maintain state machines of all polled MPLAB Harmony modules. */
     }
 
 #if USING_HW
     snprintf((char*)uartTxBuffer, MAX_PRINT_LEN,
-            "========= ALL TESTS COMPLETE!\r\n"
+            "========= %s: ALL TESTS COMPLETE!\r\n"
             "tests passed: %ld \r\n"
             "tests failed: %ld \r\n"
             "total tests:  %ld \r\n"
             "score: %ld/20 points \r\n\r\n",
+            (char *) nameStrPtr,
             totalPassCount,
             totalFailCount,
             totalTestCount,
