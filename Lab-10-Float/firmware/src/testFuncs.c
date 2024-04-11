@@ -224,13 +224,13 @@ static void checkMax(expectedValues *e,
 
 static void checkMantissa(int32_t expectedMant, 
         int32_t unpackedMant, 
-        uint32_t ubExp,    // unbiased exponent
+        uint32_t biasedExp,    // biased exponent
         int32_t *goodCount, 
         int32_t *badCount,
         char **pfString )
 {
     // if NaN or +/- inf
-    if(ubExp == 255) // only check lower 23 bits of mantissa
+    if(biasedExp == 255) // only check lower 23 bits of mantissa
     {
         expectedMant = expectedMant && 0x7FFFFF;
         unpackedMant = unpackedMant && 0x7FFFFF;
