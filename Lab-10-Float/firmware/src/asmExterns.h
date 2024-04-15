@@ -39,15 +39,15 @@ extern "C" {
     // externs defined in the assembly file:
     extern uint32_t nameStrPtr;
 
-    extern float f1,f2,fMax;
-    extern uint32_t sb1,sb2,signBitMax;
+    extern float f0,f1,fMax;
+    extern uint32_t sb0,sb1,signBitMax;
     // adjusted UNBIASED (real) exponent
-    extern int32_t realExp1,realExp2,realExpMax; // adjusted UNBIASED exponent
+    extern int32_t realExp0,realExp1,realExpMax; // adjusted UNBIASED exponent
     // adjusted mantissa (hidden bit added when appropriate, 
     // see lecture for details)
-    extern uint32_t mant1,mant2,mantMax; // adjusted mantissa (hidden bit added when appropriate))
+    extern uint32_t mant0,mant1,mantMax; // adjusted mantissa (hidden bit added when appropriate))
     // exponent bits copied from float
-    extern int32_t storedExp1,storedExp2,storedExpMax; // exponent bits copied from float
+    extern int32_t storedExp0,storedExp1,storedExpMax; // exponent bits copied from float
     extern uint32_t nanValue;
 
     /* Provide C++ Compatibility */

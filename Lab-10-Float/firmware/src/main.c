@@ -83,6 +83,9 @@ static uint8_t uartTxBuffer[MAX_PRINT_LEN] = {0};
 //
 // Function signature
 // For this lab, return the larger of the two floating point values passed in.
+// The floats are being reinterpreted as uints so that they get passed to assy
+// in r0 and r1. Otherwise, C forces them to be passed in the fp registers
+// s0 and s1
 extern float * asmFmax(uint32_t, uint32_t);
 
 
@@ -99,6 +102,7 @@ static float tc[][2] = { // Modify these if you want to debug
     {    -0.2,                 -0.1}, 
     {     1.0,                  2.0}, 
     {    -3.1,                 -1.2}, 
+    {    -7.25,                 -6.5}, 
     {     NAN,                  1.0}, 
     {    -1.0,                  NAN}, 
     {     0.1,                  0.99},  // 
@@ -118,6 +122,7 @@ static float tc[][2] = { // DO NOT MODIFY THESE!!!!!
     {    -0.2,                 -0.1}, 
     {     1.0,                  2.0}, 
     {    -3.1,                  -1.2}, 
+    {    -7.25,                 -6.5}, 
     {     NAN,                  1.0}, 
     {    -1.0,                  NAN}, 
     {     0.1,                  0.99},  // 
@@ -200,8 +205,12 @@ int main ( void )
                 tc[iteration][1] = reinterpret_uint_to_float(0x000FFF3F);
             }
             
-            uint32_t ff1 = reinterpret_float_to_uint(tc[iteration][0]);
-            uint32_t ff2 = reinterpret_float_to_uint(tc[iteration][1]);
+            // if you try to pass floats as floats to assy, they get put
+            // into s0,s1, etc registers. So need to fool C into thinking
+            // 32b ints are being passed instead, so that args are passed
+            // in r0 and r1
+            uint32_t ff0 = reinterpret_float_to_uint(tc[iteration][0]);
+            uint32_t ff1 = reinterpret_float_to_uint(tc[iteration][1]);
             
             // Place to store the result of the call to the assy function
             float *max;
@@ -216,7 +225,7 @@ int main ( void )
             }
             
             // Make the call to the assembly function
-            max = asmFmax(ff1,ff2);
+            max = asmFmax(ff0,ff1);
             
             testResult(iteration,tc[iteration][0],tc[iteration][1],
                     max,
@@ -239,7 +248,7 @@ int main ( void )
 
 #if USING_HW
     snprintf((char*)uartTxBuffer, MAX_PRINT_LEN,
-            "========= %s: ALL TESTS COMPLETE!\r\n"
+            "========= %s: asmFloat.s ALL TESTS COMPLETE!\r\n"
             "tests passed: %ld \r\n"
             "tests failed: %ld \r\n"
             "total tests:  %ld \r\n"

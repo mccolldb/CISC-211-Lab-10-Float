@@ -19,39 +19,39 @@ nameStr: .asciz "Inigo Montoya"
 .type nameStrPtr,%gnu_unique_object
 nameStrPtr: .word nameStr   /* Assign the mem loc of nameStr to nameStrPtr */
 
-.global f1,f2,fMax,signBitMax,storedExpMax,realExpMax,mantMax
+.global f0,f1,fMax,signBitMax,storedExpMax,realExpMax,mantMax
+.type f0,%gnu_unique_object
 .type f1,%gnu_unique_object
-.type f2,%gnu_unique_object
 .type fMax,%gnu_unique_object
 .type signBitMax,%gnu_unique_object
 .type storedExpMax,%gnu_unique_object
 .type realExpMax,%gnu_unique_object
 .type mantMax,%gnu_unique_object
 
-.global sb1,sb2,storedExp1,storedExp2,realExp1,realExp2,mant1,mant2
+.global sb0,sb1,storedExp0,storedExp1,realExp0,realExp1,mant0,mant1
 .type sb1,%gnu_unique_object
 .type sb2,%gnu_unique_object
+.type storedExp0,%gnu_unique_object
 .type storedExp1,%gnu_unique_object
-.type storedExp2,%gnu_unique_object
+.type realExp0,%gnu_unique_object
 .type realExp1,%gnu_unique_object
-.type realExp2,%gnu_unique_object
+.type mant0,%gnu_unique_object
 .type mant1,%gnu_unique_object
-.type mant2,%gnu_unique_object
  
 .align
 @ use these locations to store f1 values
-f1: .word 0
-sb1: .word 0
-storedExp1: .word 0  /* the unmodified 8b exp value extracted from the float */
-realExp1: .word 0
-mant1: .word 0
+f0: .word 0
+sb0: .word 0
+storedExp0: .word 0  /* the unmodified 8b exp value extracted from the float */
+realExp0: .word 0
+mant0: .word 0
  
 @ use these locations to store f2 values
-f2: .word 0
-sb2: .word 0
-realExp2: .word 0
-storedExp2: .word 0  /* the unmodified 8b exp value extracted from the float */
-mant2: .word 0
+f1: .word 0
+sb1: .word 0
+realExp1: .word 0
+storedExp1: .word 0  /* the unmodified 8b exp value extracted from the float */
+mant1: .word 0
  
 @ use these locations to store fMax values
 fMax: .word 0
@@ -87,7 +87,7 @@ initVariables:
             r1: address of mem to store sign bit (bit 31).
                 Store a 1 if the sign bit is negative,
                 Store a 0 if the sign bit is positive
-                use sb1, sb2, or signBitMax for storage, as needed
+                use sb0, sb1, or signBitMax for storage, as needed
     output: [r1]: mem location given by r1 contains the sign bit
 ********************************************************************/
 .global getSignBit
@@ -102,16 +102,17 @@ getSignBit:
 /********************************************************************
  function name: getExponent
     input:  r0: address of mem containing 32b float to be unpacked
-            r1: address of mem to store BIASED
+            r1: address of mem to store "stored" (biased)
                 bits 23-30 (exponent) 
                 BIASED means the unpacked value (range 0-255) copied
                 out of the original float.
-                use storedExp1, storedExp2, or storedExpMax for storage, as needed
+                Use storedExp0, storedExp1, or storedExpMax for storage, 
+                as needed
             r2: address of mem to store unpacked REAL exponent
                 bits 23-30 (exponent) 
                 REAL means the unpacked value - 127 (or -126, see presentation
                 for details)
-                use realExp1, realExp2, or realExpMax for storage, as needed
+                use realExp0, realExp1, or realExpMax for storage, as needed
     output: [r1]: mem location given by r1 contains the unpacked
                   original (stored) exponent bits, in the lower 8b of the mem 
                   location
@@ -133,7 +134,7 @@ getExponent:
     input:  r0: address of mem containing 32b float to be unpacked
             r1: address of mem to store unpacked bits 0-22 (mantissa) 
                 of 32b float. 
-                Use mant1, mant2, or mantMax for storage, as needed
+                Use mant0, mant1, or mantMax for storage, as needed
     output: [r1]: mem location given by r1 contains the unpacked
                   mantissa bits
 ********************************************************************/
@@ -150,13 +151,13 @@ getMantissa:
 /********************************************************************
 function name: asmFmax
 function description:
-     max = asmFmax ( f1 , f2 )
+     max = asmFmax ( f0 , f1 )
      
 where:
-     f1, f2 are 32b floating point values passed in by the C caller
-     max is the ADDRESS of fMax, where the greater of (f1,f2) must be stored
+     f0, f1 are 32b floating point values passed in by the C caller
+     max is the ADDRESS of fMax, where the greater of (f0,f1) must be stored
      
-     if f1 equals f2, return either one
+     if f0 equals f1, return either one
      notes:
         "greater than" means the most positive numeber.
         For example, -1 is greater than -200
