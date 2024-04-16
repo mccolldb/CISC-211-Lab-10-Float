@@ -12,7 +12,7 @@
 .type nameStr,%gnu_unique_object
     
 /*** STUDENTS: Change the next line to your name!  **/
-nameStr: .asciz "Inigo Montoya"  
+nameStr: .asciz "David McColl"  
  
 /* initialize a global variable that C can access to print the nameStr */
 .global nameStrPtr
@@ -39,6 +39,12 @@ nameStrPtr: .word nameStr   /* Assign the mem loc of nameStr to nameStrPtr */
 .type mant1,%gnu_unique_object
  
 .align
+ // structure offsets...
+.EQU FLOAT_OFF,	    0x0
+.EQU SIGN_OFF,	    0x4
+.EQU BIASED_OFF,    0x8
+.EQU EXP_OFF,	    0xC
+.EQU MANT_OFF,	    0x10
 @ use these locations to store f1 values
 f0: .word 0
 sb0: .word 0
@@ -60,6 +66,8 @@ storedExpMax: .word 0
 realExpMax: .word 0
 mantMax: .word 0
 
+fZero: .word 0,0,0,0,0
+    
 .global nanValue 
 .type nanValue,%gnu_unique_object
 nanValue: .word 0x7FFFFFFF            
@@ -77,7 +85,15 @@ nanValue: .word 0x7FFFFFFF
  .type initVariables,%function
 initVariables:
     /* YOUR initVariables CODE BELOW THIS LINE! Don't forget to push and pop! */
-
+    push {r4-r11,LR}
+    LDR R0,=fZero
+    LDR R1,=f0
+    BL copy_struct
+    LDR R1,=f1
+    BL copy_struct
+    LDR R1,=fMax
+    BL copy_struct
+    pop  {r4-r11,PC}
     /* YOUR initVariables CODE ABOVE THIS LINE! Don't forget to push and pop! */
 
     
@@ -94,7 +110,8 @@ initVariables:
 .type getSignBit,%function
 getSignBit:
     /* YOUR getSignBit CODE BELOW THIS LINE! Don't forget to push and pop! */
-
+    push {r4-r11,LR}
+    pop  {r4-r11,PC}
     /* YOUR getSignBit CODE ABOVE THIS LINE! Don't forget to push and pop! */
     
 
@@ -125,7 +142,8 @@ getSignBit:
 .type getExponent,%function
 getExponent:
     /* YOUR getExponent CODE BELOW THIS LINE! Don't forget to push and pop! */
-    
+    push {r4-r11,LR}
+    pop  {r4-r11,PC}
     /* YOUR getExponent CODE ABOVE THIS LINE! Don't forget to push and pop! */
    
 
@@ -145,7 +163,8 @@ getExponent:
 .type getMantissa,%function
 getMantissa:
     /* YOUR getMantissa CODE BELOW THIS LINE! Don't forget to push and pop! */
-    
+    push {r4-r11,LR}
+    pop  {r4-r11,PC}
     /* YOUR getMantissa CODE ABOVE THIS LINE! Don't forget to push and pop! */
    
 
@@ -184,11 +203,77 @@ where:
 asmFmax:   
 
     /* YOUR asmFmax CODE BELOW THIS LINE! VVVVVVVVVVVVVVVVVVVVV  */
+    push {r4-r11,LR}
+    BL initVariables    // copy fZero to f0,f1,fMax
     
+    lDR R2,=f0
+    STR R0,[R2,FLOAT_OFF]   // save f0 input to f0-struct
+    LDR R2,=f1
+    STR R1,[R2,FLOAT_OFF]   // save f1 input to f1-struct
     
+    /* analyze the two floating point values */
+    LDR R0,=f0             // R0= struct to extract
+    BL  extract_parts
+    LDR R0,=f1             // R0= struct to extract
+    BL  extract_parts
+    
+    // ToDo : compare using the extracted parts
+    // or just use sign/magnitude shortcut
+    LDR R2,=0x7FFFFFFF   // magnitude mask
+    LDR R0,=f0
+    LDR R0,[R0,FLOAT_OFF]
+    AND R0, R2           // extract magnitude
+    LDR R1,=f1
+    LDR R1,[R1,FLOAT_OFF]
+    AND R1,R2           // extract magnitude
+    CMP R0,R1           // compare magnitudes
+    LDRGE R0,=f0
+    LDRLT R0,=f1
+    
+    // assume src float in R0
+    LDR R1,=fMax   // destination addr
+    BL copy_struct
+    LDR R0,=fMax   // return address(fMax)
+    pop  {r4-r11,PC}
     /* YOUR asmFmax CODE ABOVE THIS LINE! ^^^^^^^^^^^^^^^^^^^^^  */
 
    
+// local function
+copy_struct: // R0= from_struct addr, R1 = to_struct addr
+    push {r4,LR} /* save the caller's registers */    
+    LDR R4,[R0,FLOAT_OFF]  // read
+    STR R4,[R1,FLOAT_OFF]  // write
+    LDR R4,[R0,SIGN_OFF]
+    STR R4,[R1,SIGN_OFF]
+    LDR R4,[R0,BIASED_OFF]
+    STR R4,[R1,BIASED_OFF]
+    LDR R4,[R0,EXP_OFF]
+    STR R4,[R1,EXP_OFF]
+    LDR R4,[R0,MANT_OFF]
+    STR R4,[R1,MANT_OFF]
+    pop {r4,PC} /* restore the caller's registers */
+ 
+    // local function
+extract_parts: // void  extract_parts(struct float_parts*=R0)
+    // R0-R3 unchanged,R0=float value R4=field value, R5=struct base addr, R6=Mask
+    push {R4-R6,LR} /* save the caller's registers */
+    MOV R5,R0             // R5 = base of structure
+    LDR R0,[R5,FLOAT_OFF] // R0 = value of float
+    LSR R4,R0,31          // R4 = field bits; get sign bit
+    STR R4,[R5,SIGN_OFF]  // save sign bit
+    
+    LSR R4,R0,23          // shift out mantissa
+    AND R4,0xFF           // mask 8 bit exp field
+    STR R4,[R5,BIASED_OFF]// save biased exp
+    SUB R4,127            // unbias
+    STR R4,[R5,EXP_OFF]   // save exp
+    
+    LDR R6,=0x007FFFFF   // mantissa mask bits
+    AND R4,R0,R6         // and-out non-mantissa bits
+    LDR R6,=0x00800000   // hidden bit mask
+    ORR R4,R4,R6         // orr-in hidden bit
+    STR R4,[R5,MANT_OFF] // save mant
+    pop {R4-R6,PC} /* restore the caller's registers */
 
 /**********************************************************************/   
 .end  /* The assembler will not process anything after this directive!!! */
