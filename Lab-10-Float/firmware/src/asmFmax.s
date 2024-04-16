@@ -105,14 +105,15 @@ getSignBit:
             r1: address of mem to store "stored" (biased)
                 bits 23-30 (exponent) 
                 BIASED means the unpacked value (range 0-255) copied
-                out of the original float.
+                out of the original float. Make sure to shift exp to LSBs!
                 Use storedExp0, storedExp1, or storedExpMax for storage, 
                 as needed
             r2: address of mem to store unpacked REAL exponent
                 bits 23-30 (exponent) 
-                REAL means the unpacked value - 127 (or -126, see presentation
-                for details)
-                use realExp0, realExp1, or realExpMax for storage, as needed
+                REAL means the unpacked value - 127
+                NOTE: the real exponent may be changed later in asmFmax
+                depending on whether the float is subnormal or +/- zero
+                Use realExp0, realExp1, or realExpMax for storage, as needed
     output: [r1]: mem location given by r1 contains the unpacked
                   original (stored) exponent bits, in the lower 8b of the mem 
                   location
@@ -134,6 +135,8 @@ getExponent:
     input:  r0: address of mem containing 32b float to be unpacked
             r1: address of mem to store unpacked bits 0-22 (mantissa) 
                 of 32b float. 
+                NOTE: the mantissa may be changed later in asmFmax
+                depending on whether the float is subnormal or +/- zero
                 Use mant0, mant1, or mantMax for storage, as needed
     output: [r1]: mem location given by r1 contains the unpacked
                   mantissa bits
