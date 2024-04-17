@@ -421,13 +421,13 @@ void testResult(int testNum,
     snprintf((char*)txBuffer, MAX_PRINT_LEN,
             "========= Test Number: %d\r\n"
             "input1:       %8.4e; input2:     %8.4e \r\n"
-            "hex inp1:     0x%08lx; hex inp2: 0x%08lx\r\n"
-            "%s: expected max: %8.4e; asm result: %8.4e\r\n"
-            "%s: pointer check: expected:  0x%" PRIXPTR "; actual: 0x%" PRIXPTR "\r\n"
-            "%s: sign bit expected: %ld; actual: %ld\r\n"
-            "%s: biased expnt expected:   %ld; actual: %ld\r\n"
-            "%s: unbiased expnt expected: %ld; actual: %ld\r\n"
-            "%s: mantissa expected: 0x%08lx; actual: 0x%08lx\r\n"
+            "hex inp1:     0x%08lX; hex inp2:   0x%08lX\r\n"
+            "%s: max            expected: %8.4e; actual: %8.4e\r\n"
+            "%s: pointer check  expected: 0x%08X; actual: 0x%08X\r\n"
+            "%s: sign bit       expected:   %8ld; actual:   %8ld\r\n"
+            "%s: biased expnt   expected:   %8ld; actual:   %8ld\r\n"
+            "%s: unbiased expnt expected:   %8ld; actual:   %8ld\r\n"
+            "%s: mantissa       expected: 0x%08lX; actual: 0x%08lX\r\n"
             "tests passed: %ld; tests failed: %ld \r\n"
             "\r\n",
             testNum,
